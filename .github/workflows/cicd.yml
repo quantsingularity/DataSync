@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  # ============================================================
+  # Code Quality Checks (Python & Prettier)
+  # ============================================================
+  code_quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python formatters
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install autoflake black==25.11.0
+
+      - name: Check Python Code Quality
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== Running autoflake check ==="
+          autoflake --remove-all-unused-imports --remove-unused-variables --recursive --check .
+          echo "=== Running black check ==="
+          black . --check
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Global Formatters
+        run: npm install -g prettier prettier-plugin-solidity
+
+      - name: Run Global Prettier Check
+        shell: bash
+        run: |
+          set -euo pipefail
+          NODE_GLOBAL=$(npm root -g)
+          echo "=== Running Prettier check ==="
+          prettier --plugin="$NODE_GLOBAL/prettier-plugin-solidity/dist/index.js" \
+            --check "**/*.{js,jsx,ts,tsx,json,html,css,md,yml,yaml}"
