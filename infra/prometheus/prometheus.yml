@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: datasync-api
+    static_configs:
+      - targets: ["api:8000"]
+    metrics_path: /metrics
+
+  - job_name: datasync-ingest
+    static_configs:
+      - targets: ["ingest:9100"]
+    metrics_path: /metrics
+
+  - job_name: datasync-alt-data
+    static_configs:
+      - targets: ["alt-data:9101"]
+    metrics_path: /metrics
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
