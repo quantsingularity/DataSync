@@ -33,8 +33,8 @@ and exposes a REST API with Redis caching.
 ## Quick Start
 
 ```bash
-git clone https://github.com/abrar/datasync.git
-cd datasync
+git clone https://github.com/quantsingularity/DataSync.git
+cd DataSync
 cp .env.example .env
 # Leave USE_MOCK_FEEDS=true for development (no real API keys needed)
 make up
@@ -223,7 +223,7 @@ tick = polygon_trade_to_tick(raw_msg)
 ## Folder Structure
 
 ```
-datasync/
+DataSync/
 ├── Makefile
 ├── docker-compose.yml
 ├── .env.example
