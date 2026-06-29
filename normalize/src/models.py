@@ -12,7 +12,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # Asset classes
@@ -76,6 +76,15 @@ class NormalizedTick(BaseModel):
     def normalize_symbol(cls, v: str) -> str:
         return v.upper().strip()
 
+    @field_validator("conditions", mode="before")
+    @classmethod
+    def coerce_conditions(cls, v):
+        # Some feeds (e.g. Polygon) send condition codes as integers, but the
+        # canonical schema is a list of strings. Coerce every element to str.
+        if v is None:
+            return []
+        return [str(x) for x in v]
+
     @field_validator("time", mode="before")
     @classmethod
     def ensure_tz(cls, v) -> datetime:
@@ -90,9 +99,6 @@ class NormalizedTick(BaseModel):
 
     def to_kafka_value(self) -> Dict[str, Any]:
         return self.model_dump(mode="json")
-
-    class Config:
-        use_enum_values = True
 
 
 # ── Canonical OHLCV Bar ───────────────────────────────────────────────────────
@@ -129,9 +135,6 @@ class NormalizedBar(BaseModel):
         if isinstance(v, datetime) and v.tzinfo is None:
             v = v.replace(tzinfo=timezone.utc)
         return v
-
-    class Config:
-        use_enum_values = True
 
 
 # ── Alt Data ─────────────────────────────────────────────────────────────────
@@ -172,9 +175,6 @@ class NormalizedAltData(BaseModel):
             v = v.replace(tzinfo=timezone.utc)
         return v
 
-    class Config:
-        use_enum_values = True
-
 
 # ── Subscription ──────────────────────────────────────────────────────────────
 
@@ -183,6 +183,8 @@ class SubscriptionRequest(BaseModel):
     service_name: str
     symbol: str
     asset_class: AssetClass
+
+    model_config = {"use_enum_values": True}
 
     @field_validator("symbol")
     @classmethod
@@ -198,5 +200,4 @@ class SubscriptionResponse(BaseModel):
     is_active: bool
     subscribed_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

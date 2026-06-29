@@ -11,8 +11,8 @@ from datetime import datetime, timezone
 from typing import List
 
 import httpx
-from kafka_producer.src.producer import publish_alt_data
 
+from kafka_producer.src.producer import publish_alt_data
 from normalize.src.models import AltDataType, NormalizedAltData
 from store.src.timescale import write_alt_data
 
@@ -327,7 +327,6 @@ async def main() -> None:
         logger.info("Alt-data pipeline cancelled")
     finally:
         from kafka_producer.src.producer import flush_and_stop
-
         from store.src.timescale import close_pool
 
         await flush_and_stop()

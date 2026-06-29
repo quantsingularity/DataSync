@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY normalize      /app/normalize
 COPY store          /app/store
 COPY kafka_producer /app/kafka_producer
-COPY ingest         /app/ingest
+COPY alt_data       /app/alt_data
 
-CMD ["python", "-m", "ingest.src.main"]
+CMD ["python", "-m", "alt_data.src.main"]

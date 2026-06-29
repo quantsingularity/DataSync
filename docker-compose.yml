@@ -127,8 +127,8 @@ services:
   # REST API
   api:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api/Dockerfile
     container_name: datasync-api
     env_file: .env
     ports:
@@ -145,8 +145,8 @@ services:
   # Ingest service (WebSocket feeds from Alpaca + Polygon)
   ingest:
     build:
-      context: ./ingest
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ingest/Dockerfile
     container_name: datasync-ingest
     env_file: .env
     depends_on:
@@ -161,8 +161,8 @@ services:
   # Alt-data pipeline (news, social, on-chain)
   alt-data:
     build:
-      context: ./alt-data
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: alt_data/Dockerfile
     container_name: datasync-alt-data
     env_file: .env
     depends_on:

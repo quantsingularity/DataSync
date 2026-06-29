@@ -7,11 +7,23 @@ Uses asyncpg for high-throughput batch inserts.
 import logging
 import os
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional, Sequence
 
 import asyncpg
 
 from normalize.src.models import NormalizedAltData, NormalizedBar, NormalizedTick
+
+
+def _ev(v):
+    """Return the .value of an Enum, else the value unchanged.
+
+    Models no longer coerce enums to plain strings, so str(enum) would yield
+    e.g. "AssetClass.EQUITY". Persisting the canonical value ("equity") instead
+    keeps TimescaleDB columns and downstream queries correct.
+    """
+    return v.value if isinstance(v, Enum) else v
+
 
 logger = logging.getLogger("datasync.store")
 
@@ -59,8 +71,8 @@ async def write_tick(tick: NormalizedTick) -> None:
         """,
         tick.time,
         tick.symbol,
-        str(tick.asset_class),
-        str(tick.source),
+        _ev(tick.asset_class),
+        _ev(tick.source),
         tick.price,
         tick.size,
         tick.bid,
@@ -83,8 +95,8 @@ async def write_ticks_batch(ticks: Sequence[NormalizedTick]) -> int:
         (
             t.time,
             t.symbol,
-            str(t.asset_class),
-            str(t.source),
+            _ev(t.asset_class),
+            _ev(t.source),
             t.price,
             t.size,
             t.bid,
@@ -130,9 +142,9 @@ async def write_bar(bar: NormalizedBar) -> None:
         """,
         bar.time,
         bar.symbol,
-        str(bar.asset_class),
-        str(bar.timeframe),
-        str(bar.source),
+        _ev(bar.asset_class),
+        _ev(bar.timeframe),
+        _ev(bar.source),
         bar.open,
         bar.high,
         bar.low,
@@ -151,9 +163,9 @@ async def write_bars_batch(bars: Sequence[NormalizedBar]) -> int:
         (
             b.time,
             b.symbol,
-            str(b.asset_class),
-            str(b.timeframe),
-            str(b.source),
+            _ev(b.asset_class),
+            _ev(b.timeframe),
+            _ev(b.source),
             b.open,
             b.high,
             b.low,
@@ -190,7 +202,7 @@ async def write_alt_data(alt: NormalizedAltData) -> None:
         """,
         alt.time,
         alt.symbol,
-        str(alt.data_type),
+        _ev(alt.data_type),
         alt.source,
         alt.score,
         alt.volume,

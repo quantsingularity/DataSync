@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 
-
 from normalize.src.alpaca_adapter import (
     alpaca_bar_to_bar,
     alpaca_quote_to_tick,

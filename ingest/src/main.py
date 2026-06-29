@@ -9,7 +9,6 @@ import logging
 import os
 
 from kafka_producer.src.producer import flush_and_stop, publish_bar, publish_tick
-
 from normalize.src.models import AssetClass, NormalizedBar, NormalizedTick
 from store.src.cache import cache_price, push_tick_to_stream
 from store.src.timescale import close_pool, get_pool, write_bar, write_tick

@@ -7,6 +7,7 @@ TTL is configurable per data type via environment variables.
 import json
 import logging
 import os
+from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
@@ -24,6 +25,8 @@ _redis: Optional[aioredis.Redis] = None
 def _default(o: Any) -> Any:
     if isinstance(o, Decimal):
         return float(o)
+    if isinstance(o, datetime):
+        return o.isoformat()
     raise TypeError(f"Not serializable: {type(o)}")
 
 

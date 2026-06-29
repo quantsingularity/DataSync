@@ -52,7 +52,12 @@ logger = logging.getLogger("datasync.api")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("DataSync API starting...")
-    await get_pool()
+    # Don't crash the whole service if the DB is briefly unavailable at boot;
+    # /health reports "degraded" and pooled connections are retried lazily.
+    try:
+        await get_pool()
+    except Exception as exc:
+        logger.warning("DB pool not ready at startup (will retry lazily): %s", exc)
     yield
     logger.info("DataSync API stopping...")
     await close_pool()
@@ -254,7 +259,9 @@ async def get_subscriptions(active_only: bool = True):
     if cached:
         return cached
     subs = await list_subscriptions(active_only)
-    await cache_subscriptions([s.__dict__ for s in subs])
+    # list_subscriptions returns plain dicts; cache them directly.
+    # (Previously this did `s.__dict__`, which raises AttributeError on dicts.)
+    await cache_subscriptions(subs)
     return subs
 
 
